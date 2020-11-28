@@ -22,7 +22,7 @@
 #define CCW LOW
 
 #define STEPS_PER_REV (double) 200
-#define MICROSTEPS (double) 8
+#define MICROSTEPS (double) 16
 #define DRIVE_PULLEY_RADIUS (double) 6.1 // in mm
 #define DRIVE_SCREW_PITCH (double) 8.0 // in mm
 
@@ -35,10 +35,10 @@
 #define STALL_PIN_X A2
 #define STALL_PIN_Y A3
 
-#define MOTOR_SYRINGE StepperMotor(4, 5, STALL_PIN_SYRINGE, 3, STEP_DIST_SYRINGE, 140, CW) // defining motor wholesale as macro instead of individual pins
-#define MOTOR_PLUNGER StepperMotor(6, 7, STALL_PIN_PLUNGER, 3, STEP_DIST_SYRINGE, 90, CW)
-#define MOTOR_X StepperMotor(8, 9, STALL_PIN_X, A4, STEP_DIST_X, 280, CW)
-#define MOTOR_Y StepperMotor(10, 11, STALL_PIN_Y, A5, STEP_DIST_Y, 280, CCW)
+#define MOTOR_SYRINGE StepperMotor(4, 5, STALL_PIN_SYRINGE, 3, STEP_DIST_SYRINGE, 140, CW, 500) // defining motor wholesale as macro instead of individual pins
+#define MOTOR_PLUNGER StepperMotor(6, 7, STALL_PIN_PLUNGER, 3, STEP_DIST_SYRINGE, 90, CW, 500)
+#define MOTOR_X StepperMotor(8, 9, STALL_PIN_X, A4, STEP_DIST_X, 280, CW, 500)
+#define MOTOR_Y StepperMotor(10, 11, STALL_PIN_Y, A5, STEP_DIST_Y, 280, CCW, 500)
 
 #define CONFIG_RX 12
 #define CONFIG_TX 13
@@ -213,13 +213,13 @@ class StepperMotor {
       stalled = isStalled;
     }
     bool isStalled() {
-      return stalled;
-//      if (stall_pin >= 0 &&
-//        digitalRead(stall_pin) == HIGH) {
-//         Serial.println("Fuck, we stalled");
-//        return true;
-//      }
-//      return false;
+//      return stalled;
+      if (stall_pin >= 0 &&
+        digitalRead(stall_pin) == HIGH) {
+         Serial.println("Fuck, we stalled");
+        return true;
+      }
+      return false;
     }
 
     void reset() {
@@ -249,9 +249,9 @@ class StepperMotor {
     double max_pos;
     int reset_delay = 20;
     bool stalled = false;
-    void interrupt_handler () {
-      stalled = true;
-    }
+//    void interrupt_handler () {
+//      stalled = true;
+//    }
     void step_(int num_steps, int dir, int step_delay = -1) {
       if (step_delay < 0) {
         step_delay = this->step_delay; // reset local reference
@@ -505,6 +505,10 @@ void serialCallback(String msg) {
     } else {
       Serial.println("Unrecognized argument " + payload + " for command " + command);
     }
+  } else if (command = "test") {
+    Serial.println("testing motion");
+    motor_test_basic(2400,1);
+    Serial.println("done.");
   } else {
     Serial.println("Unrecognized command " + command);
   }
@@ -526,6 +530,7 @@ void plunger_interrupt_handler() {
 }
 
 void x_interrupt_handler() {
+  Serial.println("X went wrong");
   MOTOR_X.setStalled(true);
 }
 
@@ -553,12 +558,13 @@ void setup() {
   pinMode(STALL_PIN_PLUNGER, INPUT);
   pinMode(STALL_PIN_X, INPUT);
   pinMode(STALL_PIN_Y, INPUT);
+  
   attachInterrupt(digitalPinToInterrupt(STALL_PIN_SYRINGE), syringe_interrupt_handler, RISING);
   attachInterrupt(digitalPinToInterrupt(STALL_PIN_PLUNGER), plunger_interrupt_handler, RISING);
   attachInterrupt(digitalPinToInterrupt(STALL_PIN_X), x_interrupt_handler, RISING);
   attachInterrupt(digitalPinToInterrupt(STALL_PIN_Y), y_interrupt_handler, RISING);
 //  readStringUntil(
-//  configure_stallguard();
+  configure_stallguard();
 //  motor_test_basic(2400,1);
 //  Serial.println("Finishing");
   
