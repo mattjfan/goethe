@@ -93,7 +93,7 @@ class StepperMotor {
       pinMode(step_pin, OUTPUT);
       pinMode(dir_pin, OUTPUT);
       pinMode(stall_pin, INPUT); // included with next gen design in mind. Currently not used internally, stall refs currently managed in global scope
-      pinMode(enable_pin, INPUT);
+      pinMode(enable_pin, OUTPUT);
     }
     void step_dist_cw(double dist, int step_delay = 1) {
       step_cw((int) dist / mm_per_step, step_delay);
