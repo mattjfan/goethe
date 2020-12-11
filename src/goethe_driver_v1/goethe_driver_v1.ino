@@ -11,6 +11,8 @@
  */
 
 #include <TMCStepper.h>
+#include "DEV_Config.h"
+#include "TCS34725.h"
 
 #define STEP_PIN_X 12
 #define DIR_PIN_X 11
@@ -22,14 +24,14 @@
 #define STALL_PIN_Y 18
 #define EN_PIN_Y 10
 
-#define STEP_PIN_SHELL 3
-#define DIR_PIN_SHELL 2
-#define STALL_PIN_SHELL 20
+#define STEP_PIN_SHELL 22
+#define DIR_PIN_SHELL 23
+#define STALL_PIN_SHELL 3
 #define EN_PIN_SHELL 4
 
 #define STEP_PIN_PLUNGER 6
 #define DIR_PIN_PLUNGER 5
-#define STALL_PIN_PLUNGER 21
+#define STALL_PIN_PLUNGER 2
 #define EN_PIN_PLUNGER 7
 
 #define CONFIG_SERIAL_XY Serial3
@@ -158,7 +160,7 @@ class StepperMotor {
 
       void go_to(double target_position) {
         enable();
-      // Serial.println("Goin to tha position");
+      // Serial.println("Goin to the position");
         if (target_position > max_pos) {
           return;
         }
@@ -353,16 +355,16 @@ void serialEvent() {
 void serialCallback(String msg) {
   Serial.println("Runnin it");
 //  x_motor.go_down(20);
-//  x_motor.reset();
-//  y_motor.reset();
-//  x_motor.calibrate();
-//  y_motor.calibrate();
-//  Serial.println("calibrrted");
-//  x_motor.reset();
-//  y_motor.reset();
+  x_motor.reset();
+  y_motor.reset();
+  x_motor.calibrate();
+  y_motor.calibrate();
+  Serial.println("calibrrted");
+  x_motor.reset();
+  y_motor.reset();
 ////  y_motor.go_up(3);
-//  x_motor.go_to(100);
-//  y_motor.go_to(100);
+  x_motor.go_to(100);
+  y_motor.go_to(100);
 //  plunger_motor.enable();
 //  plunger_motor.go_down(20);
 //  plunger_motor.disable();
@@ -500,8 +502,7 @@ void setup() {
   
 //  digitalWrite(EN_PIN, HIGH);
 //  x_motor.calibrate();
-//  print(DA_THING);
-//  print_da_thing();
+
 }
 
 void loop() {
